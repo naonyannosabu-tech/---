@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stella Civil Newsroom</title>
+  <meta name="description" content="LINEオープンチャット国家運営向けのニュース投稿・外交マトリクス閲覧サイト">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="ambient" aria-hidden="true">
+    <span class="orb orb-a"></span>
+    <span class="orb orb-b"></span>
+    <span class="grid"></span>
+  </div>
+
+  <header class="hero">
+    <nav class="topbar" aria-label="サイトナビゲーション">
+      <a class="brand" href="#top" aria-label="Stella Civil Newsroom home">
+        <span class="brand-mark">ST</span>
+        <span>
+          <span class="brand-kicker">Civil System</span>
+          <strong>Stella Newsroom</strong>
+        </span>
+      </a>
+      <div class="navlinks">
+        <a href="#news">ニュース</a>
+        <a href="#submit">投稿</a>
+        <a href="#diplomacy">外交</a>
+        <button class="ghost" id="openSettings" type="button">GAS設定</button>
+      </div>
+    </nav>
+
+    <section id="top" class="hero-inner">
+      <p class="eyebrow">民営システム / Public Intelligence Board</p>
+      <h1>国家運営のニュースと外交関係を、ひとつの民間ポータルへ。</h1>
+      <p class="lead">LINEオープンチャットのプレイヤーが、ニュースを投稿・閲覧し、外交マトリクスをすぐ確認できるサイトです。スプレッドシート/GAS接続にも対応できる構成にしています。</p>
+      <div class="hero-actions">
+        <a class="primary" href="#submit">ニュースを投稿</a>
+        <a class="secondary" href="#diplomacy">外交マトリクスを見る</a>
+      </div>
+      <div class="signal-row" aria-label="概要数値">
+        <article>
+          <span id="statNews">0</span>
+          <small>公開ニュース</small>
+        </article>
+        <article>
+          <span id="statNations">0</span>
+          <small>登録国家</small>
+        </article>
+        <article>
+          <span id="statUpdated">--</span>
+          <small>最終更新</small>
+        </article>
+      </div>
+    </section>
+  </header>
+
+  <main>
+    <section class="panel board" id="news" aria-labelledby="newsTitle">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">News Feed</p>
+          <h2 id="newsTitle">ニュース閲覧</h2>
+        </div>
+        <div class="filters" role="search">
+          <input id="searchNews" type="search" placeholder="国名・見出し・本文を検索">
+          <select id="categoryFilter" aria-label="カテゴリで絞り込み">
+            <option value="all">すべて</option>
+          </select>
+        </div>
+      </div>
+      <div class="ticker" id="headlineTicker" aria-live="polite"></div>
+      <div class="news-grid" id="newsGrid"></div>
+      <p class="empty" id="newsEmpty" hidden>条件に合うニュースがありません。</p>
+    </section>
+
+    <section class="split">
+      <form class="panel submit-card" id="newsForm">
+        <p class="eyebrow">Citizen Press</p>
+        <h2 id="submit">ニュース投稿</h2>
+        <p class="form-note">GAS URL未設定時は、この端末のブラウザに下書きとして保存されます。GAS接続後はスプレッドシートへ投稿できます。</p>
+
+        <label>投稿者名
+          <input name="author" required maxlength="40" placeholder="例: 星都通信 / ルメリア政府広報">
+        </label>
+        <label>所属国家
+          <input name="nation" required maxlength="40" placeholder="例: ルメリア連邦">
+        </label>
+        <label>カテゴリ
+          <select name="category" required>
+            <option>政治</option>
+            <option>外交</option>
+            <option>経済</option>
+            <option>軍事</option>
+            <option>文化</option>
+            <option>速報</option>
+          </select>
+        </label>
+        <label>見出し
+          <input name="title" required maxlength="90" placeholder="ニュースのタイトル">
+        </label>
+        <label>本文
+          <textarea name="body" required maxlength="900" rows="7" placeholder="本文を入力してください。条約、選挙、貿易、戦争、イベント告知などに使えます。"></textarea>
+        </label>
+        <button class="primary wide" type="submit">投稿する</button>
+        <p class="status" id="postStatus" role="status"></p>
+      </form>
+
+      <aside class="panel guide-card">
+        <p class="eyebrow">Sheet Schema</p>
+        <h2>スプレッドシート想定</h2>
+        <p>GASで接続する場合は、以下の2シートを用意するとそのまま扱いやすいです。</p>
+        <div class="schema-list">
+          <code>News: id, date, nation, author, category, title, body</code>
+          <code>Diplomacy: from, to, status, score, note</code>
+        </div>
+        <button class="secondary wide" id="loadSample" type="button">サンプルデータに戻す</button>
+      </aside>
+    </section>
+
+    <section class="panel diplomacy" id="diplomacy" aria-labelledby="diplomacyTitle">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Diplomatic Matrix</p>
+          <h2 id="diplomacyTitle">外交マトリクス</h2>
+        </div>
+        <div class="legend" id="legend"></div>
+      </div>
+      <div class="matrix-tools">
+        <select id="focusNation" aria-label="国家を選択">
+          <option value="all">全国家を表示</option>
+        </select>
+        <p id="matrixNote">セルを選択すると詳細が表示されます。</p>
+      </div>
+      <div class="matrix-wrap">
+        <table class="matrix" id="matrixTable"></table>
+      </div>
+      <aside class="relation-detail" id="relationDetail">
+        <strong>外交詳細</strong>
+        <span>気になる関係セルをクリックしてください。</span>
+      </aside>
+    </section>
+  </main>
+
+  <dialog class="settings" id="settingsDialog">
+    <form method="dialog">
+      <div class="dialog-head">
+        <div>
+          <p class="eyebrow">Connection</p>
+          <h2>GAS URL設定</h2>
+        </div>
+        <button class="icon" value="cancel" aria-label="閉じる">×</button>
+      </div>
+      <p>Google Apps Script のウェブアプリURLを保存すると、公開スプレッドシートからデータを取得します。</p>
+      <label>GAS Web App URL
+        <input id="gasUrlInput" type="url" placeholder="https://script.google.com/macros/s/.../exec">
+      </label>
+      <div class="dialog-actions">
+        <button class="secondary" id="clearGas" type="button">設定を削除</button>
+        <button class="primary" id="saveGas" value="default">保存して再読込</button>
+      </div>
+    </form>
+  </dialog>
+
+  <template id="newsCardTemplate">
+    <article class="news-card">
+      <div class="card-meta">
+        <span class="badge"></span>
+        <time></time>
+      </div>
+      <h3></h3>
+      <p class="body"></p>
+      <footer>
+        <span class="nation"></span>
+        <span class="author"></span>
+      </footer>
+    </article>
+  </template>
+
+  <script src="app.js" defer></script>
+</body>
+</html>
