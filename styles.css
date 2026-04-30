@@ -74,6 +74,7 @@ h2 { margin: 8px 0 0; font-size: clamp(28px, 4vw, 46px); letter-spacing: -.04em;
 .filters, .matrix-tools { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 input, select, textarea { width: 100%; border: 1px solid var(--line); background: rgba(2, 8, 6, .55); color: var(--ink); border-radius: 16px; padding: 13px 14px; outline: none; }
 input:focus, select:focus, textarea:focus { border-color: rgba(232,213,163,.58); box-shadow: 0 0 0 4px rgba(232,213,163,.08); }
+input, select, textarea { font-size: 16px; }
 .filters input { min-width: min(360px, 80vw); }
 .filters select { width: 160px; }
 .ticker { min-height: 46px; margin-bottom: 18px; padding: 12px 16px; border: 1px dashed rgba(232,213,163,.28); border-radius: 18px; color: var(--gold); font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
@@ -116,6 +117,10 @@ textarea { resize: vertical; line-height: 1.7; }
 .settings form { padding: 26px; }
 .dialog-head { display: flex; align-items: start; justify-content: space-between; gap: 16px; }
 .icon { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,.08); color: var(--ink); font-size: 22px; }
+.dialog-status { padding: 12px 14px; border-radius: 16px; background: rgba(255,255,255,.055); border: 1px solid var(--line); color: var(--muted); line-height: 1.65; overflow-wrap: anywhere; }
+.dialog-status[data-type="ok"] { color: var(--leaf); border-color: rgba(119,198,122,.35); }
+.dialog-status[data-type="warn"] { color: var(--warn); border-color: rgba(227,161,79,.38); }
+.dialog-status[data-type="error"] { color: var(--danger); border-color: rgba(223,107,99,.38); }
 
 @media (max-width: 920px) {
   .topbar { align-items: flex-start; border-radius: 28px; flex-direction: column; }
@@ -125,10 +130,31 @@ textarea { resize: vertical; line-height: 1.7; }
 }
 
 @media (max-width: 640px) {
-  .hero { min-height: auto; padding-bottom: 42px; }
-  .hero-inner { margin-top: 54px; }
+  body { font-size: 15px; }
+  .hero { min-height: auto; padding: 12px 12px 42px; }
+  .topbar { top: 8px; padding: 10px; gap: 12px; }
+  .brand-mark { width: 40px; height: 40px; }
+  .brand strong { font-size: 14px; }
+  .navlinks { display: grid; grid-template-columns: repeat(4, max-content); gap: 6px; font-size: 12px; }
+  .navlinks a, .ghost { padding: 10px 11px; }
+  .hero-inner { margin-top: 44px; }
   .signal-row, .news-grid { grid-template-columns: 1fr; }
   .filters input, .filters select { min-width: 100%; width: 100%; }
+  main { width: min(100% - 20px, 1220px); gap: 16px; margin-bottom: 44px; }
   .panel { border-radius: 22px; }
-  h1 { font-size: 44px; }
+  h1 { font-size: clamp(38px, 13vw, 52px); letter-spacing: -.055em; }
+  h2 { font-size: 30px; }
+  .lead { font-size: 15px; line-height: 1.8; }
+  .hero-actions { display: grid; }
+  .section-head { gap: 12px; }
+  .card-meta, .news-card footer { align-items: flex-start; flex-direction: column; }
+  .news-card { min-height: auto; }
+  .matrix-tools { display: grid; justify-content: stretch; }
+  .matrix-wrap { margin-inline: -10px; border-radius: 18px; max-height: 62vh; }
+  .matrix { min-width: 620px; }
+  .matrix th, .matrix td { min-width: 96px; padding: 9px; font-size: 12px; }
+  .matrix button { min-height: 54px; border-radius: 12px; }
+  .settings { width: calc(100% - 16px); max-height: calc(100dvh - 18px); }
+  .settings form { padding: 18px; }
+  .dialog-actions { display: grid; }
 }
