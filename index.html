@@ -144,21 +144,22 @@
   </main>
 
   <dialog class="settings" id="settingsDialog">
-    <form method="dialog">
+    <form id="settingsForm">
       <div class="dialog-head">
         <div>
           <p class="eyebrow">Connection</p>
           <h2>GAS URL設定</h2>
         </div>
-        <button class="icon" value="cancel" aria-label="閉じる">×</button>
+        <button class="icon" id="closeSettings" type="button" aria-label="閉じる">×</button>
       </div>
-      <p>Google Apps Script のウェブアプリURLを保存すると、公開スプレッドシートからデータを取得します。</p>
+      <p>Google Apps Script のウェブアプリURLを保存すると、公開スプレッドシートからデータを取得します。保存だけは通信テストに失敗しても完了します。</p>
       <label>GAS Web App URL
-        <input id="gasUrlInput" type="url" placeholder="https://script.google.com/macros/s/.../exec">
+        <input id="gasUrlInput" type="text" inputmode="url" autocomplete="url" placeholder="https://script.google.com/macros/s/.../exec">
       </label>
+      <p class="dialog-status" id="gasStatus" role="status"></p>
       <div class="dialog-actions">
         <button class="secondary" id="clearGas" type="button">設定を削除</button>
-        <button class="primary" id="saveGas" value="default">保存して再読込</button>
+        <button class="primary" id="saveGas" type="submit">保存して再読込</button>
       </div>
     </form>
   </dialog>
