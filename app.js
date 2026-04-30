@@ -81,6 +81,7 @@ window.addEventListener('DOMContentLoaded', init);
 async function init() {
   bindEvents();
   $('#gasUrlInput').value = state.gasUrl;
+  updateGasStatus();
   await loadData();
 }
 
@@ -88,8 +89,9 @@ function bindEvents() {
   $('#searchNews').addEventListener('input', renderNews);
   $('#categoryFilter').addEventListener('change', renderNews);
   $('#focusNation').addEventListener('change', renderMatrix);
-  $('#openSettings').addEventListener('click', () => $('#settingsDialog').showModal());
-  $('#saveGas').addEventListener('click', saveGasUrl);
+  $('#openSettings').addEventListener('click', openSettings);
+  $('#closeSettings').addEventListener('click', () => $('#settingsDialog').close());
+  $('#settingsForm').addEventListener('submit', saveGasUrl);
   $('#clearGas').addEventListener('click', clearGasUrl);
   $('#loadSample').addEventListener('click', async () => {
     localStorage.removeItem(LS_LOCAL_NEWS);
@@ -103,17 +105,19 @@ async function loadData() {
   if (state.gasUrl) {
     try {
       const [newsPayload, diplomacyPayload] = await Promise.all([
-        fetchJson(`${state.gasUrl}?action=getNews`),
-        fetchJson(`${state.gasUrl}?action=getDiplomacyMatrix`),
+        fetchJson(withAction(state.gasUrl, 'getNews')),
+        fetchJson(withAction(state.gasUrl, 'getDiplomacyMatrix')),
       ]);
       state.news = normalizeNews(newsPayload.news || newsPayload.items || []);
       state.diplomacy = normalizeDiplomacy(diplomacyPayload.diplomacy || diplomacyPayload);
       mergeLocalNews();
       renderAll();
+      updateGasStatus('GAS接続中: データを取得できました。', 'ok');
       return;
     } catch (error) {
       console.warn(error);
-      announce('GASから取得できなかったため、サンプルデータを表示しています。');
+      updateGasStatus('GAS URLは保存済みです。通信に失敗したため、サンプルデータを表示しています。', 'warn');
+      announce('GAS通信に失敗したため、サンプルデータを表示しています。');
     }
   }
   await loadSampleData();
@@ -351,20 +355,52 @@ function saveLocalNews(item) {
   localStorage.setItem(LS_LOCAL_NEWS, JSON.stringify([item, ...items].slice(0, 100)));
 }
 
-function saveGasUrl(event) {
+function openSettings() {
+  $('#gasUrlInput').value = state.gasUrl;
+  updateGasStatus();
+  $('#settingsDialog').showModal();
+}
+
+async function saveGasUrl(event) {
   event.preventDefault();
-  const url = $('#gasUrlInput').value.trim();
-  if (!url) return;
+  const url = normalizeGasUrl($('#gasUrlInput').value);
+  if (!url) {
+    updateGasStatus('GAS URLを入力してください。', 'error');
+    return;
+  }
+
   state.gasUrl = url;
   localStorage.setItem(LS_GAS_URL, url);
+  $('#gasUrlInput').value = url;
+  updateGasStatus('GAS URLを保存しました。接続を確認しています...', 'ok');
+  announce('GAS URLを保存しました。');
+  await loadData();
   $('#settingsDialog').close();
-  loadData();
+}
+
+function normalizeGasUrl(value) {
+  return value.trim().replace(/^<|>$/g, '');
+}
+
+function withAction(baseUrl, action) {
+  const separator = baseUrl.includes('?') ? '&' : '?';
+  return `${baseUrl}${separator}action=${encodeURIComponent(action)}`;
+}
+
+function updateGasStatus(message, type = '') {
+  const status = $('#gasStatus');
+  if (!status) return;
+  status.textContent = message || (state.gasUrl
+    ? `保存中のURL: ${state.gasUrl}`
+    : 'GAS URLは未設定です。未設定でもサンプル表示と端末内投稿は使えます。');
+  status.dataset.type = type;
 }
 
 function clearGasUrl() {
   state.gasUrl = '';
   $('#gasUrlInput').value = '';
   localStorage.removeItem(LS_GAS_URL);
+  updateGasStatus('GAS URL設定を削除しました。', 'warn');
   $('#settingsDialog').close();
   loadData();
 }
